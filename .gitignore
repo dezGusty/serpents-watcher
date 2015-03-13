@@ -26,3 +26,17 @@
 *.exe
 *.out
 *.app
+
+#ignore build folder
+build/
+# Solution and project temp files
+*.sdf
+*.suo
+*.opensdf
+*.log
+*.tlog
+*.pdb
+*.idb
+*.lastbuildstate
+*.res
+
