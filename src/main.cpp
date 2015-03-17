@@ -15,12 +15,14 @@
 #include "services-functions.h"
 #include "services-globals.h"
 
+
 #include "admin-rigths-elevation.h"
 
 #include "wx\thread.h"
 
 #include "guslib\util\config\configuration.h"
 #include "guslib\util\filehelper.h"
+#include "guslib\system\uacelevation.h"
 
 #include "icon-selector.h"
 
@@ -51,40 +53,26 @@ bool MyApp::OnInit()
 	BOOL fIsRunAsAdmin;
 	try
 	{
-		fIsRunAsAdmin = IsRunAsAdmin();
+		fIsRunAsAdmin = guslib::UAC::isRunningAsAdmin();
 	}
 	catch (DWORD dwError)
 	{
-		ReportError(L"IsRunAsAdmin", dwError);
+		//this function reports the error
+		[](LPCWSTR pszFunction, DWORD dwError)
+		{
+			wchar_t szMessage[200];
+			if (SUCCEEDED(StringCchPrintf(szMessage, ARRAYSIZE(szMessage),
+				L"%s failed w/err 0x%08lx", pszFunction, dwError)))
+			{
+				MessageBox(NULL, szMessage, L"Error", MB_ICONERROR);
+			}
+		}(L"IsRunAsAdmin", dwError);
 	}
 
 	// Elevate the process if it is not run as administrator.
-	if (!fIsRunAsAdmin)
+	if (!fIsRunAsAdmin && !guslib::UAC::isElevated())
 	{
-		wchar_t szPath[MAX_PATH];
-		if (GetModuleFileName(NULL, szPath, ARRAYSIZE(szPath)))
-		{
-			// Launch itself as administrator.
-			SHELLEXECUTEINFO sei = { sizeof(sei) };
-			sei.lpVerb = L"runas";
-			sei.lpFile = szPath;
-			//sei.hwnd = hWnd;
-			sei.nShow = SW_NORMAL;
-
-			if (!ShellExecuteEx(&sei))
-			{
-				DWORD dwError = GetLastError();
-				if (dwError == ERROR_CANCELLED)
-				{
-					// The user refused the elevation.
-					// Do nothing ...
-				}
-			}
-			else
-			{
-				return false;//quits it self in non-admin mode
-			}
-		}
+		return !guslib::UAC::relaunchForManualElevation(true);
 	}
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////END ELEVATE UAC
 	

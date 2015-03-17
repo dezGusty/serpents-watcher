@@ -18,7 +18,7 @@ SETUP:
 	f.	Double click it to see this setup. When you close the Visual Studio, it will ask you to save the change or not, just click Yes and save it to the same folder.
 		Done.
 2. Download the Guslib library from git hub ( https://github.com/dezGusty/guslib ) and build it
-	a.	Create a new environment variable with the name GUS_LIB and the value: <path to the guslib directory>\guslib-master\guslib-master 
-		(example: the GUS_LIB environment variable on my system is set to D:\petru\guslib-master\guslib-master )
+	a.	Create a new environment variable with the name GUS_LIB and the value: <path to the guslib directory>\guslib
+		(example: the GUS_LIB environment variable on my system is set to C:\Users\Petru.barko\Documents\Projects\guslib )
 3.	Open Serpents.sln and build the project. It should work.
 	a. If it did not work click on Project and select Manage NuGet Packages. Then search for MS Visual Studio wxWidgets Helper and install it. That should do it.

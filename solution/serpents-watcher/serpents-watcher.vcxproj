@@ -62,7 +62,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%GUS_LIB%\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%GUS_LIB%\build\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>guslib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -85,13 +85,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\admin-rigths-elevation.cpp" />
     <ClCompile Include="..\..\src\icon-selector.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\services-functions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\admin-rigths-elevation.h" />
     <ClInclude Include="..\..\src\icon-selector.h" />
     <ClInclude Include="..\..\src\main-frame.h" />
     <ClInclude Include="..\..\src\main.h" />
