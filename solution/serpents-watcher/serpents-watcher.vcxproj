@@ -91,7 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\icon-selector.h" />
-    <ClInclude Include="..\..\src\main-frame.h" />
     <ClInclude Include="..\..\src\main.h" />
     <ClInclude Include="..\..\src\services-functions.h" />
     <ClInclude Include="..\..\src\services-globals.h" />

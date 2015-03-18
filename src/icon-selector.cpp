@@ -7,6 +7,7 @@ IconSelector::IconSelector(){
 	this->stoppedIconName = "";
 }
 
+
 void IconSelector::initializeIconsFromFile(std::string fileName){
 
 	guslib::config::Configuration config_;
@@ -14,8 +15,10 @@ void IconSelector::initializeIconsFromFile(std::string fileName){
 
 	if (guslib::filehelper::IsFileAccessible(cfgFileName))
 	{
+		//loads the file
 		config_.load(cfgFileName);
 
+		//stores the icon file names in these class members
 		this->runningIconName = config_["running icon"]["name"].getAsStringOrDefaultVal("");
 		this->intermidiateIconName = config_["intermidiate icon"]["name"].getAsStringOrDefaultVal("");
 		this->stoppedIconName = config_["stopped icon"]["name"].getAsStringOrDefaultVal("");

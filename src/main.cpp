@@ -9,33 +9,28 @@
 #endif
 
 #include "wx/taskbar.h"
-
 #include "main.h"
-
 #include "services-functions.h"
 #include "services-globals.h"
-
-
-#include "admin-rigths-elevation.h"
-
 #include "wx\thread.h"
-
 #include "guslib\util\config\configuration.h"
 #include "guslib\util\filehelper.h"
 #include "guslib\system\uacelevation.h"
-
 #include "icon-selector.h"
 
 
-// ----------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 // global variable *gs_dialog - used to point to the main window off the aplication
-// ----------------------------------------------------------------------------
-
+// --------------------------------------------------------------------------------
 static MyFrame *gs_dialog = NULL;
+
+//---------------------------------------------------
+// global variable that holds the resources file path
+//---------------------------------------------------
 static std::string resources_file_path = "../../res/";
 
 
-IMPLEMENT_APP(MyApp) /////////////////cals main function of the application
+IMPLEMENT_APP(MyApp) //cals main function of the application
 
 ///////////////////////////////ECHIVALENT main() function
 ////Has 4 Sections
@@ -57,7 +52,7 @@ bool MyApp::OnInit()
 	}
 	catch (DWORD dwError)
 	{
-		//this function reports the error
+		//this function reports an error
 		[](LPCWSTR pszFunction, DWORD dwError)
 		{
 			wchar_t szMessage[200];

@@ -32,9 +32,6 @@
     <ClInclude Include="..\..\src\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\main-frame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\services-functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
