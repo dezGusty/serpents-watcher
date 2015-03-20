@@ -27,7 +27,7 @@ static MyFrame *gs_dialog = NULL;
 //---------------------------------------------------
 // global variable that holds the resources file path
 //---------------------------------------------------
-static std::string resources_file_path = "..\\res\\";//if you want to change this take a look at section 2 below
+static std::string resources_file_path = "..\\dinozaur\\res\\";//if you want to change this take a look at section 2 below
 
 IMPLEMENT_APP(MyApp) //cals the main function of the application
 
@@ -85,21 +85,19 @@ bool MyApp::OnInit()
 	//Changes the the resource_file_path if the program
 	//is launched within Visual Studio and not .exe file
 	//--------------------------------------------------
-	if (_access(resources_file_path.c_str(), 0) == 0)
-	{
-		struct stat status;
-		stat(resources_file_path.c_str(), &status);
-		if (!(status.st_mode & S_IFDIR))
-		{
-			wxMessageBox("An invalid path was used for accessing the application resources. The program will now terminate.");
-			return false;
-		}
-	}
-	else
+	if (!_access(resources_file_path.c_str(), 0) == 0)
 	{
 		//change path for starting the program with Visual Studio
 		resources_file_path = "..\\" + resources_file_path;
 	}
+
+	if (!_access(resources_file_path.c_str(), 0) == 0)
+	{
+		wxMessageBox("An invalid path was used for accessing the application resources. The program will now terminate.");
+		return false;
+	}
+
+	
 
 	//-----------------------------------------------
 	//Section 3.
