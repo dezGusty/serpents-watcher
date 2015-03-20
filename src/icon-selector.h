@@ -16,6 +16,7 @@ private:
 
 public:
 	IconSelector();
+	/**
 	
 	/**
 	*Initializes the icon names 

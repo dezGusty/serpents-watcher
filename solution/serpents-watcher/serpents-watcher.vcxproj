@@ -92,11 +92,15 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\icon-selector.h" />
     <ClInclude Include="..\..\src\main.h" />
+    <ClInclude Include="..\..\src\serpents-watcher-version.hpp" />
     <ClInclude Include="..\..\src\services-functions.h" />
     <ClInclude Include="..\..\src\services-globals.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\res\serpents-watcher.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

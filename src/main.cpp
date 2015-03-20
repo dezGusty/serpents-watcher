@@ -27,24 +27,34 @@ static MyFrame *gs_dialog = NULL;
 //---------------------------------------------------
 // global variable that holds the resources file path
 //---------------------------------------------------
-static std::string resources_file_path = "../../res/";
+static std::string resources_file_path = "..\\res\\";//if you want to change this take a look at section 2 below
 
+IMPLEMENT_APP(MyApp) //cals the main function of the application
 
-IMPLEMENT_APP(MyApp) //cals main function of the application
-
-///////////////////////////////ECHIVALENT main() function
-////Has 4 Sections
-////1. Admin rights elevation
-////2. Reads the .ini file for the service name
-////3. Cheks if system tray is supported
-////4. Creates  the main window of the aplication
+//----------------------------------------------
+//The main function of the application
+//
+//Has 5 Sections:
+//1. Admin rights elevation
+//2. Checks the resource file path changes it if
+//   the program is luanched within Visual Studio.
+//	 If it's launched from the .exe then the path
+//	 remains the same. 
+//3. Reads the .ini file for the service name
+//4. Cheks if system tray is supported
+//5. Creates  the main window of the aplication
+//----------------------------------------------
 bool MyApp::OnInit()
 {
     if ( !wxApp::OnInit() )
         return false;
 
-	//This section elevates the admin rights
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////START ELEVATE UAC
+		
+
+	//-------------------------------
+	//Section 1.
+	//Administrator rigths elevation
+	//-------------------------------
 	BOOL fIsRunAsAdmin;
 	try
 	{
@@ -52,7 +62,7 @@ bool MyApp::OnInit()
 	}
 	catch (DWORD dwError)
 	{
-		//this function reports an error
+		//report error
 		[](LPCWSTR pszFunction, DWORD dwError)
 		{
 			wchar_t szMessage[200];
@@ -69,10 +79,33 @@ bool MyApp::OnInit()
 	{
 		return !guslib::UAC::relaunchForManualElevation(true);
 	}
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////END ELEVATE UAC
 	
-	//This section gets the service name from the .ini file and sets it to a variable
-	///////////////////////////////////////////////////////////START set the service name from the .ini file
+	//--------------------------------------------------
+	//Section 2.
+	//Changes the the resource_file_path if the program
+	//is launched within Visual Studio and not .exe file
+	//--------------------------------------------------
+	if (_access(resources_file_path.c_str(), 0) == 0)
+	{
+		struct stat status;
+		stat(resources_file_path.c_str(), &status);
+		if (!(status.st_mode & S_IFDIR))
+		{
+			wxMessageBox("An invalid path was used for accessing the application resources. The program will now terminate.");
+			return false;
+		}
+	}
+	else
+	{
+		//change path for starting the program with Visual Studio
+		resources_file_path = "..\\" + resources_file_path;
+	}
+
+	//-----------------------------------------------
+	//Section 3.
+	//Get the service name from the settings.ini file
+	//-----------------------------------------------
+
 	guslib::config::Configuration config_;
 	std::string cfgFileName(resources_file_path + "settings.ini");
 	
@@ -86,10 +119,11 @@ bool MyApp::OnInit()
 			szSvcName[i] = traceFile[i];			
 		}
 	}
-	//////////////////////////////////////////////////////////END set the service name from the .ini file
-    
-	//this section is cheking for system tray support
-	///////////////////////////////////////////////////////
+  
+	//-----------------------------
+	//Section 4.
+	//Check for system tray support
+	//-----------------------------
 	if ( !wxTaskBarIcon::IsAvailable() )			      	
     {													
         wxMessageBox									
@@ -99,23 +133,23 @@ bool MyApp::OnInit()
             wxOK | wxICON_EXCLAMATION
         );
     }
-	///////////////////////////////////////////////////////
 
-    //this section creats the main window of the application
-	////////////////////////////////////////////////////////
+	//------------------------------------------
+	//Section 5.
+	//Create the main window of the application
+	//------------------------------------------
 	gs_dialog = new MyFrame(wxT("Service handler"));
 
     gs_dialog->Show(false);//hide the main wondow
 
 	gs_dialog->DoStartALongTask();//starts a background thread that reads the log file
-	////////////////////////////////////////////////////////
     return true;
 }
 
 
-// ----------------------------------------------------------------------------
+// -----------------------
 // MyFrame implementation
-// ----------------------------------------------------------------------------
+// -----------------------	
 
 enum{
 
@@ -263,7 +297,6 @@ void MyFrame::OnMenuQuit(wxCommandEvent& WXUNUSED(event))
 }
 
 
-//*****************************************************************************thread
 void MyFrame::DoStartALongTask()//called in main app
 {
 	// we want to start a long task, but we don't want our GUI to block
@@ -288,12 +321,12 @@ wxThread::ExitCode MyFrame::Entry() //the code for the thread that you want to b
 	//                 function; rather use wxQueueEvent():
 	guslib::config::Configuration config_;
 	std::string cfgFileName(resources_file_path + "settings.ini");
-	std::string loggFile;
+	std::string loggFile = resources_file_path;
 	if (guslib::filehelper::IsFileAccessible(cfgFileName))
 	{
 		config_.load(cfgFileName);
 
-		loggFile = config_["loggfile"]["name"].getAsStringOrDefaultVal(""); 
+		loggFile += config_["loggfile"]["name"].getAsStringOrDefaultVal(""); 
 	}
 	FILE* fl = fopen(loggFile.c_str(), "r");
 	char line[255];
@@ -331,9 +364,9 @@ void MyFrame::OnClose(wxCloseEvent&)
 	Destroy();
 }
 
-// ----------------------------------------------------------------------------
+// ----------------------------
 // MyTaskBarIcon implementation
-// ----------------------------------------------------------------------------
+// ----------------------------
 
 enum
 {
