@@ -31,19 +31,17 @@ static std::string resources_file_path = "..\\dinozaur\\res\\";//if you want to 
 
 IMPLEMENT_APP(MyApp) //cals the main function of the application
 
-//----------------------------------------------
+//-------------------------------------------------
 //The main function of the application
 //
 //Has 5 Sections:
 //1. Admin rights elevation
-//2. Checks the resource file path changes it if
-//   the program is luanched within Visual Studio.
-//	 If it's launched from the .exe then the path
-//	 remains the same. 
+//2. Checks the resource file path and changes it 
+//	 if needed.
 //3. Reads the .ini file for the service name
 //4. Cheks if system tray is supported
 //5. Creates  the main window of the aplication
-//----------------------------------------------
+//-------------------------------------------------
 bool MyApp::OnInit()
 {
     if ( !wxApp::OnInit() )
@@ -80,11 +78,12 @@ bool MyApp::OnInit()
 		return !guslib::UAC::relaunchForManualElevation(true);
 	}
 	
-	//--------------------------------------------------
+	//-------------------------------------------------------
 	//Section 2.
 	//Changes the the resource_file_path if the program
-	//is launched within Visual Studio and not .exe file
-	//--------------------------------------------------
+	//is launched within Visual Studio and not the .exe file.
+	//If the changed path is not valid two, it exits.
+	//-------------------------------------------------------
 	if (!_access(resources_file_path.c_str(), 0) == 0)
 	{
 		//change path for starting the program with Visual Studio
