@@ -2,29 +2,29 @@
 
 IconSelector::IconSelector(){
 
-	this->runningIconName = "";
-	this->intermidiateIconName = "";
-	this->stoppedIconName = "";
+  this->runningIconName = "";
+  this->intermidiateIconName = "";
+  this->stoppedIconName = "";
 }
 
 
 void IconSelector::initializeIconsFromFile(std::string fileName){
 
-	guslib::config::Configuration config_;
-	std::string cfgFileName(fileName);
+  guslib::config::Configuration config_;
+  std::string cfgFileName(fileName);
 
-	if (guslib::filehelper::IsFileAccessible(cfgFileName))
-	{
-		//loads the file
-		config_.load(cfgFileName);
+  if (guslib::filehelper::IsFileAccessible(cfgFileName))
+  {
+    //loads the file
+    config_.load(cfgFileName);
 
-		//stores the icon file names in these class members
-		this->runningIconName = config_["running icon"]["name"].getAsStringOrDefaultVal("");
-		this->intermidiateIconName = config_["intermidiate icon"]["name"].getAsStringOrDefaultVal("");
-		this->stoppedIconName = config_["stopped icon"]["name"].getAsStringOrDefaultVal("");
-		this->stoppedIconName = config_["stopped icon"]["name"].getAsStringOrDefaultVal("");
-		this->errorIconName = config_["error icon"]["name"].getAsStringOrDefaultVal("");
-	}
+    //stores the icon file names in these class members
+    this->runningIconName = config_["running icon"]["name"].getAsStringOrDefaultVal("");
+    this->intermidiateIconName = config_["intermidiate icon"]["name"].getAsStringOrDefaultVal("");
+    this->stoppedIconName = config_["stopped icon"]["name"].getAsStringOrDefaultVal("");
+    this->stoppedIconName = config_["stopped icon"]["name"].getAsStringOrDefaultVal("");
+    this->errorIconName = config_["error icon"]["name"].getAsStringOrDefaultVal("");
+  }
 }
 
 std::string IconSelector::running() const{ return this->runningIconName; }
