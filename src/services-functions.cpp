@@ -472,9 +472,8 @@ BOOL __stdcall StopDependentServices()
 
 
 
-BOOL __stdcall CheckServiceStatus(int& status){
-
-
+BOOL __stdcall CheckServiceStatus(int& status)
+{
   SC_HANDLE sch = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
   if (sch == NULL){
     printf("OpenSCManager failed\n");

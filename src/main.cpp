@@ -16,6 +16,7 @@
 #include "guslib\util\config\configuration.h"
 #include "guslib\util\filehelper.h"
 #include "guslib\system\uacelevation.h"
+#include "guslib\common\simpleexception.h"
 #include "icon-selector.h"
 
 
@@ -27,28 +28,43 @@ static MyFrame *gs_dialog = NULL;
 //---------------------------------------------------
 // global variable that holds the resources file path
 //---------------------------------------------------
-static std::string resources_file_path = "..\\res\\";//if you want to change this take a look at section 2 below
+static std::string resources_file_path = "..\\..\\..\\res\\";//if you want to change this take a look at section 2 below
 
-IMPLEMENT_APP(MyApp) //cals the main function of the application
+IMPLEMENT_APP(SWApp) //cals the main function of the application
 
-//-------------------------------------------------
-//The main function of the application
-//
-//Has 5 Sections:
-//1. Admin rights elevation
-//2. Checks the resource file path and changes it 
-//   if needed.
-//3. Reads the .ini file for the service name
-//4. Cheks if system tray is supported
-//5. Creates  the main window of the aplication
-//-------------------------------------------------
-bool MyApp::OnInit()
+/**
+ * Opaque pointer containing the hidden implementation.
+ * Contains the application's configuration object. Containing it here, removes the need to included it in the header.
+ *
+ * @author Augustin Preda
+ */
+class SWApp::Impl
 {
-    if ( !wxApp::OnInit() )
-        return false;
+public:
+  guslib::config::Configuration app_config_;
+  SWApp::Impl()
+  {
+  }
+};
 
-    
+SWApp::SWApp()
+  : impl_(new SWApp::Impl())
+{
+}
 
+SWApp::~SWApp()
+{
+  delete impl_;
+}
+
+//
+//  Ensure that the application is running with admin rights.
+//  If it is not running with admin rights, relaunch it with admin rights.
+//
+//  @authors Petru Barko, Augustin Preda.
+//
+bool SWApp::EnsureRunningAsAdmin()
+{
   //-------------------------------
   //Section 1.
   //Administrator rigths elevation
@@ -77,44 +93,109 @@ bool MyApp::OnInit()
   {
     return !guslib::UAC::relaunchForManualElevation(true);
   }
-  
+
+  return true;
+}
+
+//
+//  Loads the configuration file.
+//  @remarks Can throw an exception if a failure is encountered.
+//
+//  @author Augustin Preda.
+//  
+void SWApp::LoadConfigFile()
+{
+  // Try to load the config file. Allow several locations to be used.
+  // Store the name of the config file to use.
+  std::string config_file_name("settings.ini");
+
+  // The following locations will be used in the order in which they are given here.
+  // As soon as the first one is found, it is loaded. All others are ignored afterwards.
+  std::vector <std::string> config_locations;
+  config_locations.push_back("./");
+  config_locations.push_back("../");
+  config_locations.push_back("../../");
+  config_locations.push_back("../../../res/");
+  config_locations.push_back("../../res/");
+  config_locations.push_back("../res/");
+  config_locations.push_back("./res/");
+
+  for (auto it = config_locations.begin(); it != config_locations.end(); ++it)
+  {
+    std::string target_file(*it);
+    target_file.append(config_file_name);
+    if (guslib::filehelper::IsFileAccessible(target_file))
+    {
+      // Store the folder with the config.
+      resources_file_path = *it;
+      this->impl_->app_config_.load(target_file);
+      std::string service_name(this->impl_->app_config_["service"]["name"].getAsStringOrDefaultVal(""));
+
+      for (int i = 0; i < service_name.size(); i++)
+      {
+        szSvcName[i] = service_name[i];
+      }
+
+      break;
+    }
+  }
+
+  // Ok, what if no config file was found? Throw an exception.
+  if (this->impl_->app_config_.getGroups().size() == 0)
+  {
+    std::string errorMessage = ("Could not locate settings.ini file. Tried:");
+    for (std::vector <std::string>::iterator it = config_locations.begin();
+      it != config_locations.end(); ++it)
+    {
+      errorMessage.append("\n");
+      errorMessage.append(*it);
+    }
+
+    throw guslib::SimpleException(errorMessage.c_str());
+  }
+}
+
+//-------------------------------------------------
+//The main function of the application
+//
+//Has 5 Sections:
+//1. Admin rights elevation
+//2. Checks the resource file path and changes it 
+//   if needed.
+//3. Reads the .ini file for the service name
+//4. Cheks if system tray is supported
+//5. Creates  the main window of the aplication
+//-------------------------------------------------
+bool SWApp::OnInit()
+{
+  if (!wxApp::OnInit())
+  {
+    return false;
+  }
+
+  if (!this->EnsureRunningAsAdmin())
+  {
+    return false;
+  }
+
   //-------------------------------------------------------
   //Section 2.
   //Changes the the resource_file_path if the program
   //is launched within Visual Studio and not the .exe file.
   //If the changed path is not valid two, it exits.
   //-------------------------------------------------------
-  if (!_access(resources_file_path.c_str(), 0) == 0)
+  //Get the service name from the settings.ini file
+  //-----------------------------------------------
+  try
   {
-    //change path for starting the program with Visual Studio
-    resources_file_path = "..\\" + resources_file_path;
+    this->LoadConfigFile();
   }
-
-  if (!_access(resources_file_path.c_str(), 0) == 0)
+  catch (std::exception& ex)
   {
-    wxMessageBox("An invalid path was used for accessing the application resources. The program will now terminate.");
+    wxMessageBox(ex.what());
     return false;
   }
 
-  //-----------------------------------------------
-  //Section 3.
-  //Get the service name from the settings.ini file
-  //-----------------------------------------------
-
-  guslib::config::Configuration config_;
-  std::string cfgFileName(resources_file_path + "settings.ini");
-  
-  if (guslib::filehelper::IsFileAccessible(cfgFileName))
-  {
-    config_.load(cfgFileName);
-
-    std::string traceFile(config_["service"]["name"].getAsStringOrDefaultVal(""));
-  
-    for (int i = 0; i < traceFile.size(); i++){
-      szSvcName[i] = traceFile[i];      
-    }
-  }
-  
   //-----------------------------
   //Section 4.
   //Check for system tray support

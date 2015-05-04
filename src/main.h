@@ -69,17 +69,53 @@ public:
 };
 
 
-// Define a new application
-class MyApp : public wxApp
+//
+// The main application class for Serpents Watcher. Based on wxWidgets.
+//
+// @authors Petru Barko, Augustin Preda.
+//
+class SWApp : public wxApp
 {
-public:
+private:
+  // Opaque pointer class, containing internals.
+  class Impl;
+  Impl* impl_;
 
-  /**
-  *Is the main function of the application (echivalent to int main())
-  *
-  *@return if the application terminated with success or with fail
-  */
-    virtual bool OnInit();
+public:
+  //
+  //  Constructor.
+  //
+  SWApp();
+
+  //
+  //  Destructor.
+  //
+  virtual ~SWApp();
+
+  //
+  //  Ensure that the application is running with admin rights.
+  //  If it is not running with admin rights, relaunch it with admin rights.
+  //  @return True if the application is running as an administrator.
+  //
+  //  @authors Petru Barko, Augustin Preda.
+  //
+  virtual bool EnsureRunningAsAdmin();
+
+  //
+  //  Loads the configuration file.
+  //  @remarks Can throw an exception if a failure is encountered.
+  //
+  //  @author Augustin Preda.
+  //  
+  virtual void LoadConfigFile();
+
+  //
+  // The entry point of the application (echivalent to int main())
+  // @return True if the application terminates with success. False otherwise (in case of failure).
+  //
+  // @author Petru Barko.
+  //
+  virtual bool OnInit();
 };
 
 
