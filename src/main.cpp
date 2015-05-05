@@ -10,7 +10,7 @@
 
 #include "wx/taskbar.h"
 #include "main.h"
-#include "services-functions.h"
+#include "services_functions.h"
 #include "services-globals.h"
 #include "wx\thread.h"
 #include "guslib\util\config\configuration.h"
@@ -485,6 +485,7 @@ void MyTaskBarIcon::OnMenuStartService(wxCommandEvent&){
   
 
   DoStartSvc(succeded);
+  //succeded = serpents::services::StartServiceWithName("AsusGameFirstService");
   
   if (succeded){
     
