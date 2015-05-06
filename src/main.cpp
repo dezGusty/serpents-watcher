@@ -13,11 +13,14 @@
 #include "services_functions.h"
 #include "services-globals.h"
 #include "wx\thread.h"
+#include "guslib\common\simpleexception.h"
+#include "guslib\system\uacelevation.h"
+#include "guslib/trace/trace.h"
 #include "guslib\util\config\configuration.h"
 #include "guslib\util\filehelper.h"
-#include "guslib\system\uacelevation.h"
-#include "guslib\common\simpleexception.h"
 #include "icon-selector.h"
+
+
 
 
 // --------------------------------------------------------------------------------
@@ -178,6 +181,8 @@ bool SWApp::OnInit()
     return false;
   }
 
+  GSTARTTRACING("sw.log", 5);
+
   //-------------------------------------------------------
   //Section 2.
   //Changes the the resource_file_path if the program
@@ -201,25 +206,23 @@ bool SWApp::OnInit()
   //Check for system tray support
   //-----------------------------
   if ( !wxTaskBarIcon::IsAvailable() )              
-    {                          
-        wxMessageBox                  
-        (
-            "There appears to be no system tray support in your current environment. This app may not behave as expected.",
-            "Warning",
-            wxOK | wxICON_EXCLAMATION
-        );
-    }
+  {                          
+      wxMessageBox(
+          "There appears to be no system tray support in your current environment. This app may not behave as expected.",
+          "Warning",
+          wxOK | wxICON_EXCLAMATION);
+  }
 
   //------------------------------------------
   //Section 5.
   //Create the main window of the application
   //------------------------------------------
-  gs_dialog = new MyFrame(wxT("Service handler"));
+  gs_dialog = new MyFrame(this->impl_->app_config_, wxT("Service handler"));
 
-    gs_dialog->Show(false);//hide the main wondow
+  gs_dialog->Show(false);//hide the main wondow
 
   gs_dialog->DoStartALongTask();//starts a background thread that reads the log file
-    return true;
+  return true;
 }
 
 
@@ -243,8 +246,9 @@ wxEND_EVENT_TABLE()
 
 
 
-MyFrame::MyFrame(const wxString& title)
-        : wxFrame(NULL, wxID_ANY, title)
+MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title)
+        : wxFrame(NULL, wxID_ANY, title),
+        app_config_(app_config)
 {
 #if wxUSE_MENUS
   // create a menu bar
@@ -299,7 +303,7 @@ MyFrame::MyFrame(const wxString& title)
 
   
 
-    m_taskBarIcon = new MyTaskBarIcon();
+    m_taskBarIcon = new MyTaskBarIcon(this->app_config_);
   
   IconSelector iconSelector;
   iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
@@ -484,8 +488,9 @@ void MyTaskBarIcon::OnMenuStartService(wxCommandEvent&){
     wxMessageBox(wxT("Could not set new icon."));
   
 
-  DoStartSvc(succeded);
-  //succeded = serpents::services::StartServiceWithName("AsusGameFirstService");
+  //DoStartSvc(succeded);
+  std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
+  succeded = serpents::services::StartServiceWithName(service_name.c_str());
   
   if (succeded){
     
@@ -513,7 +518,9 @@ void MyTaskBarIcon::OnMenuStopService(wxCommandEvent&){
     wxMessageBox(wxT("Could not set new icon."));
   
 
-  DoStopSvc(succeded);
+  //DoStopSvc(succeded);
+  std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
+  succeded = serpents::services::StopServiceWithName(service_name.c_str());
 
   if (succeded){
   

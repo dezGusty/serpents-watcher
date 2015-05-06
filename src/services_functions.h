@@ -54,8 +54,6 @@ namespace serpents
 
     bool StopServiceWithName(const char* service_name);
 
-    bool StopDependentServices(const char* service_name);
-
     Status GetServiceStatus(const char* service_name);
   }
 }

@@ -1,14 +1,31 @@
+#ifndef SERPENTS_MAIN_H
+#define SERPENTS_MAIN_H
 
-class MyTaskBarIcon : public wxTaskBarIcon
+//
+// Includes
+//
+
+//
+// 3rd party libs
+//
+#include "guslib/util/config/configuration.h"
+
+class MyTaskBarIcon 
+  : public wxTaskBarIcon
 {
+private:
+  guslib::config::Configuration app_config_;
+
 public:
 #if defined(__WXOSX__) && wxOSX_USE_COCOA
-  MyTaskBarIcon(wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE)
+  MyTaskBarIcon(guslib::config::Configuration app_config, wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE)
     : wxTaskBarIcon(iconType)
 #else
-  MyTaskBarIcon()
+  MyTaskBarIcon(guslib::config::Configuration app_config)
 #endif
-  {}
+  {
+    this->app_config_ = app_config;
+  }
 
   /**
   *Makes the main window visible when the system tray icon is double clicked
@@ -121,9 +138,12 @@ public:
 
 class MyFrame : public wxFrame, public wxThreadHelper
 {
+private:
+  guslib::config::Configuration app_config_;
+
 public:
-    MyFrame(const wxString& title);
-    virtual ~MyFrame();
+  MyFrame(guslib::config::Configuration app_config, const wxString& title);
+  virtual ~MyFrame();
 
   
   /**
@@ -201,3 +221,5 @@ protected:
   */
     wxDECLARE_EVENT_TABLE();
 };
+
+#endif // SERPENTS_MAIN_H

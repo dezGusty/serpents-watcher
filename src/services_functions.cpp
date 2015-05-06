@@ -17,11 +17,12 @@
 // C++ system headers
 //
 
-// none
+#include <sstream>
 
 //
 // 3rd party libraries.
 //
+#include "guslib/common/simpleexception.h"
 #include "guslib/trace/trace.h"
 #include "guslib/util/stringutil.h"
 
@@ -30,6 +31,7 @@ TCHAR szSvcName[80];
 SC_HANDLE schSCManager;
 SC_HANDLE schService;
 
+#if 0
 VOID __stdcall DoStartSvc(bool& succeded)
 {
   SERVICE_STATUS_PROCESS ssStatus;
@@ -250,6 +252,8 @@ VOID __stdcall DoStartSvc(bool& succeded)
   CloseServiceHandle(schService);
   CloseServiceHandle(schSCManager);
 }
+
+#endif
 
 VOID __stdcall DoStopSvc(bool& succeded)
 {
@@ -544,6 +548,105 @@ namespace serpents
     namespace hidden
     {
       //
+      // Stop the services that depend on a given service.
+      // 
+      // @authors Petru Barko, Augustin Preda.
+      //
+      bool StopDependentServices(SC_HANDLE service_control_manager, SC_HANDLE service_handle)
+      {
+        DWORD i;
+        DWORD dwBytesNeeded;
+        DWORD dwCount;
+
+        LPENUM_SERVICE_STATUS   lpDependencies = NULL;
+        ENUM_SERVICE_STATUS     ess;
+        SC_HANDLE               hDepService;
+        SERVICE_STATUS_PROCESS  ssp;
+
+        DWORD dwStartTime = GetTickCount();
+        DWORD dwTimeout = 30000; // 30-second time-out
+
+        // Pass a zero-length buffer to get the required buffer size.
+        if (EnumDependentServices(service_handle, SERVICE_ACTIVE,
+          lpDependencies, 0, &dwBytesNeeded, &dwCount))
+        {
+          // If the Enum call succeeds, then there are no dependent
+          // services, so do nothing.
+          return TRUE;
+        }
+        else
+        {
+          if (GetLastError() != ERROR_MORE_DATA)
+            return FALSE; // Unexpected error
+
+          // Allocate a buffer for the dependencies.
+          lpDependencies = (LPENUM_SERVICE_STATUS)HeapAlloc(
+            GetProcessHeap(), HEAP_ZERO_MEMORY, dwBytesNeeded);
+
+          if (!lpDependencies)
+            return FALSE;
+
+          __try {
+            // Enumerate the dependencies.
+            if (!EnumDependentServices(service_handle, SERVICE_ACTIVE,
+              lpDependencies, dwBytesNeeded, &dwBytesNeeded,
+              &dwCount))
+              return FALSE;
+
+            for (i = 0; i < dwCount; i++)
+            {
+              ess = *(lpDependencies + i);
+              // Open the service.
+              hDepService = OpenService(service_control_manager,
+                ess.lpServiceName,
+                SERVICE_STOP | SERVICE_QUERY_STATUS);
+
+              if (!hDepService)
+                return FALSE;
+
+              __try {
+                // Send a stop code.
+                if (!ControlService(hDepService,
+                  SERVICE_CONTROL_STOP,
+                  (LPSERVICE_STATUS)&ssp))
+                  return FALSE;
+
+                // Wait for the service to stop.
+                while (ssp.dwCurrentState != SERVICE_STOPPED)
+                {
+                  Sleep(ssp.dwWaitHint);
+                  if (!QueryServiceStatusEx(
+                    hDepService,
+                    SC_STATUS_PROCESS_INFO,
+                    (LPBYTE)&ssp,
+                    sizeof(SERVICE_STATUS_PROCESS),
+                    &dwBytesNeeded))
+                    return FALSE;
+
+                  if (ssp.dwCurrentState == SERVICE_STOPPED)
+                    break;
+
+                  if (GetTickCount() - dwStartTime > dwTimeout)
+                    return FALSE;
+                }
+              }
+              __finally
+              {
+                // Always release the service handle.
+                CloseServiceHandle(hDepService);
+              }
+            }
+          }
+          __finally
+          {
+            // Always free the enumeration buffer.
+            HeapFree(GetProcessHeap(), 0, lpDependencies);
+          }
+        }
+        return TRUE;
+      }
+
+      //
       // Wait for a process to stop.
       // @author Petru Barko, Augustin Preda.
       //
@@ -587,9 +690,6 @@ namespace serpents
             sizeof(SERVICE_STATUS_PROCESS), // size of structure
             &dwBytesNeeded))              // size needed if buffer is too small
           {
-            CloseServiceHandle(service_handle);
-            CloseServiceHandle(service_control_manager);
-
             GTRACE(3, "Failed call to QueryServiceStatusEx. Last error: " << GetLastError());
             return false;
           }
@@ -606,9 +706,6 @@ namespace serpents
             if (GetTickCount() - dwStartTickCount > ssStatus.dwWaitHint)
             {
               // Timeout waiting for the service to stop.
-              CloseServiceHandle(service_handle);
-              CloseServiceHandle(service_control_manager);
-
               return false;
             }
           }
@@ -636,9 +733,6 @@ namespace serpents
           NULL))            // no arguments 
         {
           GTRACE(3, "Failed call to StartService. Last error: " << GetLastError());
-
-          CloseServiceHandle(service_handle);
-          CloseServiceHandle(service_control_manager);
           return false;
         }
         else
@@ -656,8 +750,6 @@ namespace serpents
           &dwBytesNeeded))              // if buffer too small
         {
           printf("QueryServiceStatusEx failed (%d)\n", GetLastError());
-          CloseServiceHandle(service_handle);
-          CloseServiceHandle(service_control_manager);
           return false;
         }
 
@@ -734,9 +826,6 @@ namespace serpents
       SC_HANDLE service_handle = 0;
 
       SERVICE_STATUS_PROCESS ssStatus;
-      //DWORD dwOldCheckPoint;
-      //DWORD dwStartTickCount;
-      //DWORD dwWaitTime;
       DWORD dwBytesNeeded;
 
       // Get a handle to the SCM database. 
@@ -794,12 +883,16 @@ namespace serpents
       // Wait for the service to stop before attempting to start it.
       if (!hidden::WaitForServiceToStop(service_control_manager, service_handle, ssStatus))
       {
+        CloseServiceHandle(service_handle);
+        CloseServiceHandle(service_control_manager);
         return false;
       }
       
       // Attempt to start the service.
       if (!hidden::StartServiceAndWait(service_control_manager, service_handle))
       {
+        CloseServiceHandle(service_handle);
+        CloseServiceHandle(service_control_manager);
         return false;
       }
 
@@ -836,6 +929,148 @@ namespace serpents
 
       CloseServiceHandle(service_handle);
       CloseServiceHandle(service_control_manager);
+
+      return result;
+    }
+
+    //
+    // Start a (Windows) service identified by a name.
+    // Please keep in mind that this is the name that a service is registered with, not the display name of the service.
+    // @param service_name The name of the service to use.
+    // @return true if the service is running (either already running or running at the end of this call).
+    //
+    // @authors Petru Barko, Augustin Preda.
+    //
+    bool StopServiceWithName(const char* service_name)
+    {
+      GTRACE(4, "Stopping service with name " << service_name);
+
+      bool result = false;
+      SC_HANDLE service_control_manager = 0;
+      SC_HANDLE service_handle = 0;
+
+      SERVICE_STATUS_PROCESS ssp;
+      DWORD dwStartTime = GetTickCount();
+      DWORD dwBytesNeeded;
+      DWORD dwTimeout = 30000; // 30-second time-out
+      DWORD dwWaitTime;
+
+      // Get a handle to the SCM database. 
+
+      service_control_manager = OpenSCManager(
+        NULL,                    // local computer
+        NULL,                    // ServicesActive database 
+        SC_MANAGER_ALL_ACCESS);  // full access rights 
+
+      if (NULL == service_control_manager)
+      {
+        std::stringstream error_message;
+        error_message << "Failed call to OpenSCManager. Last error: " << GetLastError();
+        GTRACE(3, error_message.str());
+        return false;
+      }
+
+      // Get a handle to the service.
+      service_handle = OpenService(
+        service_control_manager,                                    // SCM database 
+        guslib::stringutil::StringToWString(service_name).c_str(),  // name of service 
+        SERVICE_ALL_ACCESS);
+
+      if (service_handle == NULL)
+      {
+        std::stringstream error_message;
+        error_message << "Failed call to OpenService. Last error: " << GetLastError();
+        GTRACE(3, error_message.str());
+
+        CloseServiceHandle(service_control_manager);
+        return false;
+      }
+
+      try
+      {
+        // Make sure the service is not already stopped.
+
+        if (!QueryServiceStatusEx(
+          service_handle,
+          SC_STATUS_PROCESS_INFO,
+          (LPBYTE)&ssp,
+          sizeof(SERVICE_STATUS_PROCESS),
+          &dwBytesNeeded))
+        {
+          std::stringstream error_message;
+          error_message << "Failed call to QueryServiceStatusEx. Last error: " << GetLastError();
+          throw guslib::SimpleException(error_message.str().c_str());
+        }
+
+        if (ssp.dwCurrentState == SERVICE_STOPPED)
+        {
+          std::stringstream error_message;
+          error_message << "Service is already stopped";
+          result = true;
+          throw guslib::SimpleException(error_message.str().c_str());
+        }
+
+        // If a stop is pending, wait for it.
+        if (!hidden::WaitForServiceToStop(service_control_manager, service_handle, ssp))
+        {
+          throw guslib::SimpleException("Failed to stop service.");
+        }
+
+        // If the service is running, dependencies must be stopped first.
+        GTRACE(4, "Stopping dependent service ...");
+        hidden::StopDependentServices(service_control_manager, service_handle);
+
+        // Send a stop code to the service.
+
+        if (!ControlService(
+          service_handle,
+          SERVICE_CONTROL_STOP,
+          (LPSERVICE_STATUS)&ssp))
+        {
+          std::stringstream error_message;
+          error_message << "Failed call to ControlService. Last error: " << GetLastError();
+          throw guslib::SimpleException(error_message.str().c_str());
+        }
+
+        // Wait for the service to stop.
+
+        while (ssp.dwCurrentState != SERVICE_STOPPED)
+        {
+          Sleep(ssp.dwWaitHint);
+          if (!QueryServiceStatusEx(
+            service_handle,
+            SC_STATUS_PROCESS_INFO,
+            (LPBYTE)&ssp,
+            sizeof(SERVICE_STATUS_PROCESS),
+            &dwBytesNeeded))
+          {
+            std::stringstream error_message;
+            error_message << "Failed call to QueryServiceStatusEx. Last error: " << GetLastError();
+            throw guslib::SimpleException(error_message.str().c_str());
+          }
+
+          if (ssp.dwCurrentState == SERVICE_STOPPED)
+            break;
+
+          if (GetTickCount() - dwStartTime > dwTimeout)
+          {
+            std::stringstream error_message;
+            error_message << "Wait timed out";
+            throw guslib::SimpleException(error_message.str().c_str());
+          }
+        }
+
+        GTRACE(5, "Service stopped successfully");
+        result = true;
+       }
+       catch (const std::exception& ex)
+       {
+         // Do anything?
+         GTRACE(3, ex.what());
+       }
+
+       CloseServiceHandle(service_handle);
+       CloseServiceHandle(service_control_manager);
 
       return result;
     }
