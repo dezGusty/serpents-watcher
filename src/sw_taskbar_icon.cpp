@@ -74,26 +74,32 @@ namespace serpents
 
   void SWTaskBarIcon::OnMenuStartService(wxCommandEvent&)
   {
-
     bool succeded;
 
     if (!SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.intermediate_icon_name(), wxBITMAP_TYPE_ICO)))
+    {
       wxMessageBox(wxT("Could not set new icon."));
-
+    }
 
     std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
     succeded = serpents::services::StartServiceWithName(service_name.c_str());
 
-    if (succeded){
-
+    if (succeded)
+    {
       if (!SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO)))
+      {
         wxMessageBox(wxT("Could not set new icon."));
+      }
+
       this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
     }
-    else {
-
+    else 
+    {
       if (!SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO)))
+      {
         wxMessageBox(wxT("Could not set new icon."));
+      }
+
       this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
     }
 
@@ -148,6 +154,7 @@ namespace serpents
       menu->AppendSeparator();
       menu->Append(PU_EXIT, wxT("E&xit"));
     }
+
     return menu;
   }
 

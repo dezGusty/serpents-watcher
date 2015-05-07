@@ -76,10 +76,10 @@
 #define SERPENTS_WATCH_NUM_MAJOR_VER_SIMPLE 1
 
 // Minor versions. Please keep in sync!
-#define SERPENTS_WATCH_NUM_MINOR_VER_SIMPLE 1
+#define SERPENTS_WATCH_NUM_MINOR_VER_SIMPLE 2
 
 // Patch versions. Please keep in sync!
-#define SERPENTS_WATCH_NUM_PATCH_VER_SIMPLE 4
+#define SERPENTS_WATCH_NUM_PATCH_VER_SIMPLE 0
 
 //
 // Also define string adaptations

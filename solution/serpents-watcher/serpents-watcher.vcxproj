@@ -169,6 +169,7 @@
     <ClCompile Include="..\..\src\icon_selector.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\services_functions.cpp" />
+    <ClCompile Include="..\..\src\sw_frame.cpp" />
     <ClCompile Include="..\..\src\sw_taskbar_icon.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="..\..\src\main.h" />
     <ClInclude Include="..\..\src\serpents_watcher_version.hpp" />
     <ClInclude Include="..\..\src\services_functions.h" />
+    <ClInclude Include="..\..\src\sw_frame.h" />
     <ClInclude Include="..\..\src\sw_taskbar_icon.h" />
   </ItemGroup>
   <ItemGroup>
