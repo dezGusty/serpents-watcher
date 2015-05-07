@@ -9,6 +9,7 @@
 // 3rd party libs
 //
 #include "guslib/util/config/configuration.h"
+#include "wx/taskbar.h"
 
 class MyTaskBarIcon 
   : public wxTaskBarIcon

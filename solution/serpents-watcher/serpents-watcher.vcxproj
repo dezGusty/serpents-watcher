@@ -166,16 +166,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\icon-selector.cpp" />
+    <ClCompile Include="..\..\src\icon_selector.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\services_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\icon-selector.h" />
+    <ClInclude Include="..\..\src\icon_selector.h" />
     <ClInclude Include="..\..\src\main.h" />
     <ClInclude Include="..\..\src\serpents_watcher_version.hpp" />
     <ClInclude Include="..\..\src\services_functions.h" />
-    <ClInclude Include="..\..\src\services-globals.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\res\serpents-watcher.rc" />

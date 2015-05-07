@@ -1,3 +1,6 @@
+//
+// Includes
+//
 #include "wx/wxprec.h"
 
 #ifdef __BORLANDC__
@@ -8,17 +11,20 @@
     #include "wx/wx.h"
 #endif
 
-#include "wx/taskbar.h"
+
 #include "main.h"
-#include "services_functions.h"
-#include "services-globals.h"
-#include "wx\thread.h"
+
+#include <strsafe.h>
+
 #include "guslib\common\simpleexception.h"
 #include "guslib\system\uacelevation.h"
 #include "guslib/trace/trace.h"
 #include "guslib\util\config\configuration.h"
 #include "guslib\util\filehelper.h"
-#include "icon-selector.h"
+#include "wx\thread.h"
+
+#include "services_functions.h"
+#include "icon_selector.h"
 
 
 
@@ -133,11 +139,6 @@ void SWApp::LoadConfigFile()
       resources_file_path = *it;
       this->impl_->app_config_.load(target_file);
       std::string service_name(this->impl_->app_config_["service"]["name"].getAsStringOrDefaultVal(""));
-
-      for (int i = 0; i < service_name.size(); i++)
-      {
-        szSvcName[i] = service_name[i];
-      }
 
       break;
     }
@@ -308,35 +309,41 @@ MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title
   IconSelector iconSelector;
   iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
 
-  int status = 3;
-  if (CheckServiceStatus(status)){
-    
-    if (status == 1){
-      
+  try
+  {
+    std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
+    serpents::services::Status service_status = serpents::services::GetServiceStatus(service_name.c_str());
+    if (service_status == serpents::services::Status::SvcStatusRunning)
+    {
       if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
+      
       this->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO));
-
-    } else if(status == 0){
-    
+    }
+    else if(service_status == serpents::services::Status::SvcStatusStopped)
+    {
       if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
+
       this->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO));
     }
-    else {
-    
+    else
+    {
       if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.somthingWentWrong(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
+
       this->SetIcon(wxIcon(resources_file_path + iconSelector.somthingWentWrong(), wxBITMAP_TYPE_ICO));
     }
   }
-    
+  catch (std::exception)
+  {
+  }    
   
 #if defined(__WXOSX__) && wxOSX_USE_COCOA
     m_dockIcon = new MyTaskBarIcon(wxTBI_DOCK);
