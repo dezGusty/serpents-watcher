@@ -41,12 +41,12 @@ static std::string resources_file_path = "..\\..\\..\\res\\";//if you want to ch
 
 IMPLEMENT_APP(SWApp) //cals the main function of the application
 
-/**
- * Opaque pointer containing the hidden implementation.
- * Contains the application's configuration object. Containing it here, removes the need to included it in the header.
- *
- * @author Augustin Preda
- */
+//
+// Opaque pointer containing the hidden implementation.
+// Contains the application's configuration object. Containing it here, removes the need to included it in the header.
+//
+// @author Augustin Preda
+//
 class SWApp::Impl
 {
 public:
@@ -218,7 +218,11 @@ bool SWApp::OnInit()
   //Section 5.
   //Create the main window of the application
   //------------------------------------------
-  gs_dialog = new MyFrame(this->impl_->app_config_, wxT("Service handler"));
+
+  IconSelector icon_selector(resources_file_path);
+  icon_selector.InitializeIconsFromConfig(this->impl_->app_config_);
+
+  gs_dialog = new MyFrame(this->impl_->app_config_, icon_selector, wxT("Service handler"));
 
   gs_dialog->Show(false);//hide the main wondow
 
@@ -247,9 +251,10 @@ wxEND_EVENT_TABLE()
 
 
 
-MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title)
+MyFrame::MyFrame(guslib::config::Configuration app_config, IconSelector icon_selector, const wxString& title)
         : wxFrame(NULL, wxID_ANY, title),
-        app_config_(app_config)
+        app_config_(app_config),
+        icon_selector_(icon_selector)
 {
 #if wxUSE_MENUS
   // create a menu bar
@@ -304,10 +309,10 @@ MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title
 
   
 
-    m_taskBarIcon = new MyTaskBarIcon(this->app_config_);
+    m_taskBarIcon = new serpents::SWTaskBarIcon(this->app_config_, this->icon_selector_, this);
   
-  IconSelector iconSelector;
-  iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
+  //IconSelector iconSelector;
+  //iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
 
   try
   {
@@ -315,30 +320,30 @@ MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title
     serpents::services::Status service_status = serpents::services::GetServiceStatus(service_name.c_str());
     if (service_status == serpents::services::Status::SvcStatusRunning)
     {
-      if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO)))
+      if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
       
-      this->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO));
+      this->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
     }
     else if(service_status == serpents::services::Status::SvcStatusStopped)
     {
-      if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO)))
+      if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
 
-      this->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO));
+      this->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
     }
     else
     {
-      if (!m_taskBarIcon->SetIcon(wxIcon(resources_file_path + iconSelector.somthingWentWrong(), wxBITMAP_TYPE_ICO)))
+      if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.error_icon_name(), wxBITMAP_TYPE_ICO)))
       {
         wxLogError(wxT("Could not set icon."));
       }
 
-      this->SetIcon(wxIcon(resources_file_path + iconSelector.somthingWentWrong(), wxBITMAP_TYPE_ICO));
+      this->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.error_icon_name(), wxBITMAP_TYPE_ICO));
     }
   }
   catch (std::exception)
@@ -346,7 +351,7 @@ MyFrame::MyFrame(guslib::config::Configuration app_config, const wxString& title
   }    
   
 #if defined(__WXOSX__) && wxOSX_USE_COCOA
-    m_dockIcon = new MyTaskBarIcon(wxTBI_DOCK);
+    m_dockIcon = new SWTaskBarIcon(wxTBI_DOCK);
     if ( !m_dockIcon->SetIcon(wxICON(sample)) )
     {
         wxLogError(wxT("Could not set icon."));
@@ -449,121 +454,4 @@ void MyFrame::OnClose(wxCloseEvent&)
     GetThread()->IsRunning())
     GetThread()->Wait();
   Destroy();
-}
-
-// ----------------------------
-// MyTaskBarIcon implementation
-// ----------------------------
-
-enum
-{
-  PU_RESTORE = 10001,
-  PU_EXIT,
-  START_SERVICE,
-  STOP_SERVICE
-};
-
-
-wxBEGIN_EVENT_TABLE(MyTaskBarIcon, wxTaskBarIcon)
-EVT_MENU(PU_RESTORE, MyTaskBarIcon::OnMenuRestore)
-EVT_MENU(PU_EXIT, MyTaskBarIcon::OnMenuExit)
-EVT_TASKBAR_LEFT_DCLICK(MyTaskBarIcon::OnLeftButtonDClick)
-EVT_MENU(START_SERVICE, MyTaskBarIcon::OnMenuStartService)
-EVT_MENU(STOP_SERVICE, MyTaskBarIcon::OnMenuStopService)
-wxEND_EVENT_TABLE()
-
-void MyTaskBarIcon::OnMenuRestore(wxCommandEvent&)
-{
-  gs_dialog->Show(true);
-}
-
-void MyTaskBarIcon::OnMenuExit(wxCommandEvent&)
-{
-  gs_dialog->Close(true);
-}
-
-static bool check = true;
-
-
-void MyTaskBarIcon::OnMenuStartService(wxCommandEvent&){
-
-  IconSelector iconSelector;
-  iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
-  bool succeded;
-
-  if (!SetIcon(wxIcon(resources_file_path + iconSelector.intermidiate(), wxBITMAP_TYPE_ICO)))
-    wxMessageBox(wxT("Could not set new icon."));
-  
-
-  //DoStartSvc(succeded);
-  std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
-  succeded = serpents::services::StartServiceWithName(service_name.c_str());
-  
-  if (succeded){
-    
-    if (!SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO)))
-      wxMessageBox(wxT("Could not set new icon."));
-    gs_dialog->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO));
-  }
-  else {
-  
-    if (!SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO)))
-      wxMessageBox(wxT("Could not set new icon."));
-    gs_dialog->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO));
-  }
-  
-}
-
-void MyTaskBarIcon::OnMenuStopService(wxCommandEvent&){
-
-  IconSelector iconSelector;
-  iconSelector.initializeIconsFromFile(resources_file_path + "settings.ini");
-
-  bool succeded;
-
-  if (!SetIcon(wxIcon(resources_file_path + iconSelector.intermidiate(), wxBITMAP_TYPE_ICO)))
-    wxMessageBox(wxT("Could not set new icon."));
-  
-
-  //DoStopSvc(succeded);
-  std::string service_name(app_config_["service"]["name"].getAsStringOrDefaultVal(""));
-  succeded = serpents::services::StopServiceWithName(service_name.c_str());
-
-  if (succeded){
-  
-    if (!SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO)))
-      wxMessageBox(wxT("Could not set new icon."));
-    gs_dialog->SetIcon(wxIcon(resources_file_path + iconSelector.stopped(), wxBITMAP_TYPE_ICO));
-  }
-  else {
-  
-    if (!SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO)))
-      wxMessageBox(wxT("Could not set new icon."));
-    gs_dialog->SetIcon(wxIcon(resources_file_path + iconSelector.running(), wxBITMAP_TYPE_ICO));
-  }
-  
-}
-
-wxMenu *MyTaskBarIcon::CreatePopupMenu()
-{
-  wxMenu *menu = new wxMenu;
-  menu->Append(START_SERVICE, wxT("&Start"));
-  menu->AppendSeparator();
-  menu->Append(STOP_SERVICE, wxT("&Stop"));
-  menu->AppendSeparator();
-  menu->Append(PU_RESTORE, wxT("&Main window"));
-  /* OSX has built-in quit menu for the dock menu, but not for the status item */
-#ifdef __WXOSX__ 
-  if (OSXIsStatusItem())
-#endif
-  {
-    menu->AppendSeparator();
-    menu->Append(PU_EXIT, wxT("E&xit"));
-  }
-  return menu;
-}
-
-void MyTaskBarIcon::OnLeftButtonDClick(wxTaskBarIconEvent&)
-{
-  gs_dialog->Show(true);
 }
