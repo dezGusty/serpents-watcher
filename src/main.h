@@ -1,7 +1,7 @@
 #ifndef SERPENTS_MAIN_H
 #define SERPENTS_MAIN_H
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -80,7 +80,7 @@ public:
   //  @remarks Can throw an exception if a failure is encountered.
   //
   //  @author Augustin Preda.
-  //  
+  //
   virtual void LoadConfigFile();
 
   //

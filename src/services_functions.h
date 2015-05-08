@@ -1,7 +1,7 @@
 #ifndef SW_SERVICE_FUNCTIONS_H
 #define SW_SERVICE_FUNCTIONS_H
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -31,7 +31,7 @@ namespace serpents
 {
   namespace services
   {
-    typedef enum 
+    typedef enum
     {
       SvcStatusStopped = 0,
       SvcStatusRunning = 1,
@@ -41,8 +41,10 @@ namespace serpents
     //
     // Start a (Windows) service identified by a name.
     // @param service_name The name of the service to use.
-    // Please keep in mind that this is the name that a service is registered with, not the display name of the service.
-    // @return true if the service is running (either already running or running at the end of this call).
+    // Please keep in mind that this is the name that a service is registered
+    // with, not the display name of the service.
+    // @return true if the service is running (either already running or 
+    // running at the end of this call).
     //
     // @authors Petru Barko, Augustin Preda.
     //
@@ -51,8 +53,10 @@ namespace serpents
     //
     // Stop a (Windows) service identified by a name.
     // @param service_name The name of the service to use.
-    // Please keep in mind that this is the name that a service is registered with, not the display name of the service.
-    // @return true if the service is stopped (either already stopped or stopped at the end of this call).
+    // Please keep in mind that this is the name that a service is registered
+    // with, not the display name of the service.
+    // @return true if the service is stopped (either already stopped or
+    // stopped at the end of this call).
     //
     // @authors Petru Barko, Augustin Preda.
     //
@@ -61,7 +65,8 @@ namespace serpents
     //
     // Get the status of a service, identified by its name.
     // @param service_name The name of the service to use.
-    // Please keep in mind that this is the name that a service is registered with, not the display name of the service.
+    // Please keep in mind that this is the name that a service is registered
+    // with, not the display name of the service.
     // @return The found status.
     //
     // @authors Petru Barko, Augustin Preda.

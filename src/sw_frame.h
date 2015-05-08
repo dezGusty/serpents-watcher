@@ -1,7 +1,7 @@
 #ifndef SW_FRAME_H
 #define SW_FRAME_H
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -72,8 +72,6 @@ namespace serpents
     *@return void
     */
     void OnClose(wxCloseEvent& evt);
-
-
 
   protected:
 

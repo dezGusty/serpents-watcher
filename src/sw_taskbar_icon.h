@@ -1,7 +1,7 @@
 #ifndef SW_TASKBAR_ICON_H
 #define SW_TASKBAR_ICON_H
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -71,61 +71,57 @@ namespace serpents
     SWTaskBarIcon(guslib::config::Configuration app_config, IconSelector icon_selector, wxFrame* owner_frame);
 #endif
 
-    /**
-    *Makes the main window visible when the system tray icon is double clicked
-    *
-    *@param double ckick event
-    *@return void
-    */
+    //
+    // Reacts to the double mouse click event on the tray icon.
+    // Makes the main window visible when the system tray icon is double clicked
+    //
+    // @author Petru Barko
+    //
     void OnLeftButtonDClick(wxTaskBarIconEvent&);
 
-    /**
-    *Makes the main window visible when the 'Main window' item is clicked in the system tray icon's popup menu
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Makes the main window visible when the 'Main window' item is clicked in the system tray icon's popup menu
+    //
+    // @author Petru Barko
+    //
     void OnMenuRestore(wxCommandEvent&);
 
-    /**
-    *Closes the application when the 'Exit' item is clicked in the system tray icon's popup menu
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Closes the application when the 'Exit' item is clicked in the system tray icon's popup menu
+    //
+    // @author Petru Barko
+    //
     void OnMenuExit(wxCommandEvent&);
 
-    /**
-    *Starts the service if posible and sets the appropriate icon for the service state
-    *when the 'Start' item is clicked in the system tray icon's popup menu
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Starts the service if posible and sets the appropriate icon for the service state
+    // when the 'Start' item is clicked in the system tray icon's popup menu
+    //
+    // @author Petru Barko
+    //
     void OnMenuStartService(wxCommandEvent&);
 
-    /**
-    *Stops the service if posible and sets the appropriate icon for the service state
-    *when the 'Stop' item is clicked in the system tray icon's popup menu
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Stops the service if posible and sets the appropriate icon for the service state
+    // when the 'Stop' item is clicked in the system tray icon's popup menu
+    //
+    // @author Petru Barko
+    //
     void OnMenuStopService(wxCommandEvent&);
 
-    /**
-    *Creats the system tray icon's popup menu
-    *
-    *@return pointer to the created menu
-    */
+    //
+    // Creats the system tray icon's popup menu
+    //
+    // @return pointer to the created menu
+    // @author Petru Barko
+    //
     virtual wxMenu *CreatePopupMenu();
 
-    /**
-    *This macro links the event handlers with the event triggerers
-    *by giving each event handler an id that will be used in the construction of each event triggerer.
-    *Applied only for taskbaricon elements
-    *
-    */
+    //
+    // This macro links the event handlers with the event triggerers
+    // by giving each event handler an id that will be used in the construction of each event triggerer.
+    // Applied only for taskbaricon elements
+    //
     wxDECLARE_EVENT_TABLE();
   };
 }

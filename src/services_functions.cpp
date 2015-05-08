@@ -1,4 +1,4 @@
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -66,7 +66,7 @@ namespace serpents
     {
       //
       // Stop the services that depend on a given service.
-      // 
+      //
       // @authors Petru Barko, Augustin Preda.
       //
       bool StopDependentServices(SC_HANDLE service_control_manager, SC_HANDLE service_handle)
@@ -181,9 +181,9 @@ namespace serpents
 
         while (ssStatus.dwCurrentState == SERVICE_STOP_PENDING)
         {
-          // Do not wait longer than the wait hint. A good interval is 
-          // one-tenth of the wait hint but not less than 1 second  
-          // and not more than 10 seconds. 
+          // Do not wait longer than the wait hint. A good interval is
+          // one-tenth of the wait hint but not less than 1 second
+          // and not more than 10 seconds.
 
           dwWaitTime = ssStatus.dwWaitHint / 10;
 
@@ -198,10 +198,10 @@ namespace serpents
 
           Sleep(dwWaitTime);
 
-          // Check the status until the service is no longer stop pending. 
+          // Check the status until the service is no longer stop pending.
 
           if (!QueryServiceStatusEx(
-            service_handle,                     // handle to service 
+            service_handle,                     // handle to service
             SC_STATUS_PROCESS_INFO,         // information level
             (LPBYTE)&ssStatus,             // address of structure
             sizeof(SERVICE_STATUS_PROCESS), // size of structure
@@ -245,9 +245,9 @@ namespace serpents
         SERVICE_STATUS_PROCESS ssStatus;
 
         if (!StartService(
-          service_handle,   // handle to service 
-          0,                // number of arguments 
-          NULL))            // no arguments 
+          service_handle,   // handle to service
+          0,                // number of arguments
+          NULL))            // no arguments
         {
           GTRACE(3, "Failed call to StartService. Last error: " << GetLastError());
           return false;
@@ -257,10 +257,10 @@ namespace serpents
           GTRACE(3, "Service start pending...");
         }
 
-        // Check the status until the service is no longer start pending. 
+        // Check the status until the service is no longer start pending.
 
         if (!QueryServiceStatusEx(
-          service_handle,                     // handle to service 
+          service_handle,                     // handle to service
           SC_STATUS_PROCESS_INFO,         // info level
           (LPBYTE)&ssStatus,             // address of structure
           sizeof(SERVICE_STATUS_PROCESS), // size of structure
@@ -277,9 +277,9 @@ namespace serpents
 
         while (ssStatus.dwCurrentState == SERVICE_START_PENDING)
         {
-          // Do not wait longer than the wait hint. A good interval is 
-          // one-tenth the wait hint, but no less than 1 second and no 
-          // more than 10 seconds. 
+          // Do not wait longer than the wait hint. A good interval is
+          // one-tenth the wait hint, but no less than 1 second and no
+          // more than 10 seconds.
 
           dwWaitTime = ssStatus.dwWaitHint / 10;
 
@@ -294,10 +294,10 @@ namespace serpents
 
           Sleep(dwWaitTime);
 
-          // Check the status again. 
+          // Check the status again.
 
           if (!QueryServiceStatusEx(
-            service_handle,             // handle to service 
+            service_handle,             // handle to service
             SC_STATUS_PROCESS_INFO, // info level
             (LPBYTE)&ssStatus,             // address of structure
             sizeof(SERVICE_STATUS_PROCESS), // size of structure
@@ -345,23 +345,23 @@ namespace serpents
       SERVICE_STATUS_PROCESS ssStatus;
       DWORD dwBytesNeeded;
 
-      // Get a handle to the SCM database. 
+      // Get a handle to the SCM database.
       service_control_manager = OpenSCManager(
         NULL,                       // local computer
-        SERVICES_ACTIVE_DATABASE,   // servicesActive database 
-        SC_MANAGER_ALL_ACCESS);     // full access rights 
+        SERVICES_ACTIVE_DATABASE,   // servicesActive database
+        SC_MANAGER_ALL_ACCESS);     // full access rights
 
       if (NULL == service_control_manager)
       {
         GTRACE(3, "Failed call to OpenSCManager. Last error: " << GetLastError());
         return false;
       }
-      
+
       // Get a handle to the service.
       service_handle = OpenService(
-        service_control_manager,                                    // SCM database 
-        guslib::stringutil::StringToWString(service_name).c_str(),  // name of service 
-        SERVICE_ALL_ACCESS);                                        // full access 
+        service_control_manager,                                    // SCM database
+        guslib::stringutil::StringToWString(service_name).c_str(),  // name of service
+        SERVICE_ALL_ACCESS);                                        // full access
 
       if (service_handle == NULL)
       {
@@ -370,9 +370,9 @@ namespace serpents
         return false;
       }
 
-      // Check the status in case the service is not stopped. 
+      // Check the status in case the service is not stopped.
       if (!QueryServiceStatusEx(
-        service_handle,                   // handle to service 
+        service_handle,                   // handle to service
         SC_STATUS_PROCESS_INFO,           // information level
         (LPBYTE)&ssStatus,                // address of structure
         sizeof(SERVICE_STATUS_PROCESS),   // size of structure
@@ -404,7 +404,7 @@ namespace serpents
         CloseServiceHandle(service_control_manager);
         return false;
       }
-      
+
       // Attempt to start the service.
       if (!hidden::StartServiceAndWait(service_control_manager, service_handle))
       {
@@ -415,7 +415,7 @@ namespace serpents
 
       // Check the status at the end.
       if (!QueryServiceStatusEx(
-        service_handle,                   // handle to service 
+        service_handle,                   // handle to service
         SC_STATUS_PROCESS_INFO,           // information level
         (LPBYTE)&ssStatus,                // address of structure
         sizeof(SERVICE_STATUS_PROCESS),   // size of structure
@@ -471,12 +471,12 @@ namespace serpents
       DWORD dwBytesNeeded;
       DWORD dwTimeout = 30000; // 30-second time-out
 
-      // Get a handle to the SCM database. 
+      // Get a handle to the SCM database.
 
       service_control_manager = OpenSCManager(
         NULL,                    // local computer
-        NULL,                    // ServicesActive database 
-        SC_MANAGER_ALL_ACCESS);  // full access rights 
+        NULL,                    // ServicesActive database
+        SC_MANAGER_ALL_ACCESS);  // full access rights
 
       if (NULL == service_control_manager)
       {
@@ -488,8 +488,8 @@ namespace serpents
 
       // Get a handle to the service.
       service_handle = OpenService(
-        service_control_manager,                                    // SCM database 
-        guslib::stringutil::StringToWString(service_name).c_str(),  // name of service 
+        service_control_manager,                                    // SCM database
+        guslib::stringutil::StringToWString(service_name).c_str(),  // name of service
         SERVICE_ALL_ACCESS);
 
       if (service_handle == NULL)
@@ -604,7 +604,7 @@ namespace serpents
       }
 
       service_handle = OpenService(
-        service_control_manager, 
+        service_control_manager,
         guslib::stringutil::StringToWString(service_name).c_str(),
         SERVICE_ALL_ACCESS);
       if (service_handle == NULL)

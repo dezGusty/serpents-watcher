@@ -1,4 +1,4 @@
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -56,8 +56,8 @@ IconSelector::IconSelector(const std::string& resource_root_path)
 }
 
 //
-// Initializes the icon names 
-// @param fileName The name of the file that holds the configuration. 
+// Initializes the icon names
+// @param fileName The name of the file that holds the configuration.
 // (The icon names should be contained within).
 //
 // @authors Petru Barko, Augustin Preda.

@@ -1,7 +1,7 @@
 #ifndef SERPENTS_ICON_SELECTOR_H
 #define SERPENTS_ICON_SELECTOR_H
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -66,8 +66,8 @@ public:
   explicit IconSelector(const std::string& resource_root_path);
 
   //
-  // Initializes the icon names 
-  // @param fileName The name of the file that holds the configuration. 
+  // Initializes the icon names
+  // @param fileName The name of the file that holds the configuration.
   // (The icon names should be contained within).
   //
   // @authors Petru Barko, Augustin Preda.
@@ -81,7 +81,7 @@ public:
   // @author Augustin Preda.
   //
   void InitializeIconsFromConfig(guslib::config::Configuration& config_object);
-  
+
   //
   // @return The name of the icon that is used when the service can't be accessed.
   //
@@ -95,7 +95,7 @@ public:
   // @author Petru Barko.
   //
   const std::string& intermediate_icon_name() const;
-  
+
   //
   // @return The root path location.
   //

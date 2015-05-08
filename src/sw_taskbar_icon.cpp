@@ -1,4 +1,4 @@
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -77,19 +77,19 @@ namespace serpents
   //
 #if defined(__WXOSX__) && wxOSX_USE_COCOA
   SWTaskBarIcon::SWTaskBarIcon(
-      guslib::config::Configuration app_config, 
-      IconSelector icon_selector, 
-      wxFrame* owner_frame, 
+      guslib::config::Configuration app_config,
+      IconSelector icon_selector,
+      wxFrame* owner_frame,
       wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE)
-  : wxTaskBarIcon(iconType)
-  , app_config_(app_config)
-  , icon_selector_(icon_selector)
-  , owner_frame_(owner_frame)
+  : wxTaskBarIcon(iconType),
+    app_config_(app_config),
+    icon_selector_(icon_selector),
+    owner_frame_(owner_frame)
 #else
   SWTaskBarIcon::SWTaskBarIcon(guslib::config::Configuration app_config, IconSelector icon_selector, wxFrame* owner_frame)
-  : app_config_(app_config)
-  , icon_selector_(icon_selector)
-  , owner_frame_(owner_frame)
+  : app_config_(app_config),
+    icon_selector_(icon_selector),
+    owner_frame_(owner_frame)
 #endif
   {
   }
@@ -129,7 +129,7 @@ namespace serpents
       this->owner_frame_->SetIcon(
         wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
     }
-    else 
+    else
     {
       if (!SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO)))
       {
@@ -139,7 +139,6 @@ namespace serpents
       this->owner_frame_->SetIcon(
         wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
     }
-
   }
 
   void SWTaskBarIcon::OnMenuStopService(wxCommandEvent&)
@@ -163,7 +162,7 @@ namespace serpents
 
       this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
     }
-    else 
+    else
     {
       if (!SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO)))
       {
@@ -172,7 +171,6 @@ namespace serpents
 
       this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
     }
-
   }
 
   wxMenu *SWTaskBarIcon::CreatePopupMenu()
@@ -184,7 +182,7 @@ namespace serpents
     menu->AppendSeparator();
     menu->Append(PU_RESTORE, wxT("&Main window"));
     /* OSX has built-in quit menu for the dock menu, but not for the status item */
-#ifdef __WXOSX__ 
+#ifdef __WXOSX__
     if (OSXIsStatusItem())
 #endif
     {

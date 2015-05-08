@@ -1,7 +1,7 @@
 #ifndef SERPENTS_WATCH_VERSION_HPP
 #define SERPENTS_WATCH_VERSION_HPP
 
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -87,7 +87,7 @@
 //
 
 //  SERPENTS_WATCH_STRING_VERSION should be defined as the "product" version, as a string, so you can print it out in the application, in the form
-//  "x.y.z", where "x" is the major version number, "y" is the minor version number, and "z" is the patch level. 
+//  "x.y.z", where "x" is the major version number, "y" is the minor version number, and "z" is the patch level.
 
 #define SERPENTS_WATCH_STRING_VERSION STRINGIZE(SERPENTS_WATCH_NUM_MAJOR_VER_SIMPLE) "." STRINGIZE(SERPENTS_WATCH_NUM_MINOR_VER_SIMPLE) "." STRINGIZE (SERPENTS_WATCH_NUM_PATCH_VER_SIMPLE)
 

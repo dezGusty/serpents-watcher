@@ -1,4 +1,4 @@
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -50,7 +50,7 @@
 
 // -----------------------
 // SWFrame implementation
-// -----------------------  
+// -----------------------
 
 namespace serpents
 {

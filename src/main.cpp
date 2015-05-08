@@ -1,4 +1,4 @@
-//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   This file is part of the "Serpents Watcher Utility", licensed under
 //   the terms of the MIT License (seen below).
 //
 //   The MIT License
@@ -143,7 +143,7 @@ bool SWApp::EnsureRunningAsAdmin()
 //  @remarks Can throw an exception if a failure is encountered.
 //
 //  @author Augustin Preda.
-//  
+//
 void SWApp::LoadConfigFile()
 {
   // Try to load the config file. Allow several locations to be used.
@@ -196,7 +196,7 @@ void SWApp::LoadConfigFile()
 //
 // Has 5 Sections:
 // 1. Admin rights elevation
-// 2. Checks the resource file path and changes it 
+// 2. Checks the resource file path and changes it
 //   if needed.
 // 3. Reads the .ini file for the service name
 // 4. Cheks if system tray is supported
@@ -238,8 +238,8 @@ bool SWApp::OnInit()
   // Section 4.
   // Check for system tray support
   //-----------------------------
-  if ( !wxTaskBarIcon::IsAvailable() )              
-  {                          
+  if ( !wxTaskBarIcon::IsAvailable() )
+  {
       wxMessageBox(
           "There appears to be no system tray support in your current environment. This app may not behave as expected.",
           "Warning",
