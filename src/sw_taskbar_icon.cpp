@@ -1,3 +1,29 @@
+//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   the terms of the MIT License (seen below).
+//
+//   The MIT License
+//   Copyright (C) 2015, the Serpents-Watcher team:
+//      Augustin Preda (thegusty999@gmail.com)
+//      Petru Barko
+//
+//   Permission is hereby granted, free of charge, to any person obtaining a copy
+//   of this software and associated documentation files (the "Software"), to deal
+//   in the Software without restriction, including without limitation the rights
+//   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//   copies of the Software, and to permit persons to whom the Software is
+//   furnished to do so, subject to the following conditions:
+//
+//   The above copyright notice and this permission notice shall be included in
+//   all copies or substantial portions of the Software.
+//
+//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//   THE SOFTWARE.
+
 //
 // Includes
 //
@@ -6,6 +32,11 @@
 // Own header
 //
 #include "sw_taskbar_icon.h"
+
+//
+// C++ system headers
+//
+#include <string>
 
 //
 // 3rd party libs
@@ -45,7 +76,11 @@ namespace serpents
   // Constructor.
   //
 #if defined(__WXOSX__) && wxOSX_USE_COCOA
-  SWTaskBarIcon::SWTaskBarIcon(guslib::config::Configuration app_config, IconSelector icon_selector, wxFrame* owner_frame, wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE)
+  SWTaskBarIcon::SWTaskBarIcon(
+      guslib::config::Configuration app_config, 
+      IconSelector icon_selector, 
+      wxFrame* owner_frame, 
+      wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE)
   : wxTaskBarIcon(iconType)
   , app_config_(app_config)
   , icon_selector_(icon_selector)
@@ -91,7 +126,8 @@ namespace serpents
         wxMessageBox(wxT("Could not set new icon."));
       }
 
-      this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
+      this->owner_frame_->SetIcon(
+        wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO));
     }
     else 
     {
@@ -100,7 +136,8 @@ namespace serpents
         wxMessageBox(wxT("Could not set new icon."));
       }
 
-      this->owner_frame_->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
+      this->owner_frame_->SetIcon(
+        wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
     }
 
   }

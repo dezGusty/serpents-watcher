@@ -1,32 +1,64 @@
+//   This file is part of the "Serpents Watcher Utility", licensed under 
+//   the terms of the MIT License (seen below).
+//
+//   The MIT License
+//   Copyright (C) 2015, the Serpents-Watcher team:
+//      Augustin Preda (thegusty999@gmail.com)
+//      Petru Barko
+//
+//   Permission is hereby granted, free of charge, to any person obtaining a copy
+//   of this software and associated documentation files (the "Software"), to deal
+//   in the Software without restriction, including without limitation the rights
+//   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//   copies of the Software, and to permit persons to whom the Software is
+//   furnished to do so, subject to the following conditions:
+//
+//   The above copyright notice and this permission notice shall be included in
+//   all copies or substantial portions of the Software.
+//
+//   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//   THE SOFTWARE.
+
 //
 // Includes
 //
-#include "wx/wxprec.h"
 
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
-
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif
-
-
+//
+// Own header
+//
 #include "main.h"
 
+//
+// C system headers
+//
 #include <strsafe.h>
 
-#include "guslib\common\simpleexception.h"
-#include "guslib\system\uacelevation.h"
-#include "guslib/trace/trace.h"
-#include "guslib\util\config\configuration.h"
-#include "guslib\util\filehelper.h"
-#include "wx\thread.h"
+//
+// C++ system headers
+//
+#include <string>
+#include <vector>
 
-#include "services_functions.h"
+//
+// Other libraries' headers
+//
+#include "guslib/common/simpleexception.h"
+#include "guslib/system/uacelevation.h"
+#include "guslib/trace/trace.h"
+#include "guslib/util/config/configuration.h"
+#include "guslib/util/filehelper.h"
+#include "wx/msgdlg.h"
+
+//
+// This project's headers
+//
 #include "icon_selector.h"
 #include "sw_frame.h"
-
 
 
 // --------------------------------------------------------------------------------
@@ -160,15 +192,15 @@ void SWApp::LoadConfigFile()
 }
 
 //-------------------------------------------------
-//The main function of the application
+// The main function of the application
 //
-//Has 5 Sections:
-//1. Admin rights elevation
-//2. Checks the resource file path and changes it 
+// Has 5 Sections:
+// 1. Admin rights elevation
+// 2. Checks the resource file path and changes it 
 //   if needed.
-//3. Reads the .ini file for the service name
-//4. Cheks if system tray is supported
-//5. Creates  the main window of the aplication
+// 3. Reads the .ini file for the service name
+// 4. Cheks if system tray is supported
+// 5. Creates  the main window of the aplication
 //-------------------------------------------------
 bool SWApp::OnInit()
 {
@@ -185,12 +217,12 @@ bool SWApp::OnInit()
   GSTARTTRACING("sw.log", 5);
 
   //-------------------------------------------------------
-  //Section 2.
-  //Changes the the resource_file_path if the program
-  //is launched within Visual Studio and not the .exe file.
-  //If the changed path is not valid two, it exits.
+  // Section 2.
+  // Changes the the resource_file_path if the program
+  // is launched within Visual Studio and not the .exe file.
+  // If the changed path is not valid two, it exits.
   //-------------------------------------------------------
-  //Get the service name from the settings.ini file
+  // Get the service name from the settings.ini file
   //-----------------------------------------------
   try
   {
@@ -203,8 +235,8 @@ bool SWApp::OnInit()
   }
 
   //-----------------------------
-  //Section 4.
-  //Check for system tray support
+  // Section 4.
+  // Check for system tray support
   //-----------------------------
   if ( !wxTaskBarIcon::IsAvailable() )              
   {                          
@@ -215,8 +247,8 @@ bool SWApp::OnInit()
   }
 
   //------------------------------------------
-  //Section 5.
-  //Create the main window of the application
+  // Section 5.
+  // Create the main window of the application
   //------------------------------------------
 
   IconSelector icon_selector(resources_file_path);
