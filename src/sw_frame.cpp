@@ -262,6 +262,7 @@ namespace serpents
     // to terminate as soon as possible) or we ended the long task...
     return (wxThread::ExitCode)0;
   }
+
   void SWFrame::OnClose(wxCloseEvent&)
   {
     // important: before terminating, we _must_ wait for our joinable
@@ -269,7 +270,10 @@ namespace serpents
     // instance and posts events to *this event handler
     if (GetThread() &&      // DoStartALongTask() may have not been called
       GetThread()->IsRunning())
+    {
       GetThread()->Wait();
+    }
+
     Destroy();
   }
 }

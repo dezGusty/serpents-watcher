@@ -54,23 +54,28 @@ namespace serpents
     IconSelector icon_selector_;
 
   public:
+    //
+    // Constructor.
+    //
     SWFrame(guslib::config::Configuration app_config, IconSelector icon_selector, const wxString& title);
+
+    //
+    // Destructor.
+    //
     virtual ~SWFrame();
 
-
-    /**
-    *Starts the background thread that reads the data file
-    *
-    *@return void
-    */
+    //
+    // Starts the background thread that reads the data file
+    //
+    // @author Petru Barko
+    //
     void DoStartALongTask();
 
-    /**
-    *Closes the application when the user click the top right corner x button
-    *
-    *@param close event
-    *@return void
-    */
+    //
+    // Closes the application when the user click the top right corner x button
+    // 
+    // @author Petru Barko
+    //
     void OnClose(wxCloseEvent& evt);
 
   protected:
