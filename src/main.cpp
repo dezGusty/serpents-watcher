@@ -60,17 +60,6 @@
 #include "icon_selector.h"
 #include "sw_frame.h"
 
-
-// --------------------------------------------------------------------------------
-// global variable *gs_dialog - used to point to the main window off the aplication
-// --------------------------------------------------------------------------------
-static serpents::SWFrame *gs_dialog = NULL;
-
-//---------------------------------------------------
-// global variable that holds the resources file path
-//---------------------------------------------------
-static std::string resources_file_path = "..\\..\\..\\res\\";//if you want to change this take a look at section 2 below
-
 IMPLEMENT_APP(SWApp) //cals the main function of the application
 
 //
@@ -83,7 +72,12 @@ class SWApp::Impl
 {
 public:
   guslib::config::Configuration app_config_;
+  std::string resources_file_path_;
+  serpents::SWFrame* frame_ptr;
+
   SWApp::Impl()
+    : resources_file_path_("..\\..\\..\\res\\"),
+    frame_ptr(0)
   {
   }
 };
@@ -168,7 +162,7 @@ void SWApp::LoadConfigFile()
     if (guslib::filehelper::IsFileAccessible(target_file))
     {
       // Store the folder with the config.
-      resources_file_path = *it;
+      this->impl_->resources_file_path_ = *it;
       this->impl_->app_config_.load(target_file);
       std::string service_name(this->impl_->app_config_["service"]["name"].getAsStringOrDefaultVal(""));
 
@@ -251,14 +245,14 @@ bool SWApp::OnInit()
   // Create the main window of the application
   //------------------------------------------
 
-  IconSelector icon_selector(resources_file_path);
+  IconSelector icon_selector(this->impl_->resources_file_path_);
   icon_selector.InitializeIconsFromConfig(this->impl_->app_config_);
 
-  gs_dialog = new serpents::SWFrame(this->impl_->app_config_, icon_selector, wxT("Service handler"));
+  this->impl_->frame_ptr = new serpents::SWFrame(this->impl_->app_config_, icon_selector, wxT("Service handler"));
 
-  gs_dialog->Show(false);//hide the main wondow
+  this->impl_->frame_ptr->Show(false);//hide the main wondow
 
-  gs_dialog->DoStartALongTask();//starts a background thread that reads the log file
+  this->impl_->frame_ptr->DoStartALongTask();//starts a background thread that reads the log file
   return true;
 }
 

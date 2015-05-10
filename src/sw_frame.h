@@ -53,6 +53,12 @@ namespace serpents
     guslib::config::Configuration app_config_;
     IconSelector icon_selector_;
 
+    wxTextCtrl *myTextBox;
+    serpents::SWTaskBarIcon   *m_taskBarIcon;
+#if defined(__WXOSX__) && wxOSX_USE_COCOA
+    SWTaskBarIcon   *m_dockIcon;
+#endif
+
   public:
     //
     // Constructor.
@@ -79,64 +85,49 @@ namespace serpents
     void OnClose(wxCloseEvent& evt);
 
   protected:
-
-    /**
-    *Hides the main window when the 'Hide' button is clicked
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Hides the main window when the 'Hide' button is clicked
+    //
+    // @author Petru Barko
+    //
     void OnOK(wxCommandEvent& event);
 
-    /**
-    *Closes the application when the 'Exit' button is clicked
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Closes the application when the 'Exit' button is clicked
+    //
+    // @author Petru Barko
+    //
     void OnExit(wxCommandEvent& event);
 
-    /**
-    *Closes the application when the 'X' button is clicked
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Closes the application when the 'X' button is clicked
+    // 
+    // @author Petru Barko
+    //
     void OnCloseWindow(wxCloseEvent& event);
 
-    /**
-    *Closes the application when the 'Exit' item is clicked in the main menu
-    *
-    *@param click event
-    *@return void
-    */
+    //
+    // Closes the application when the 'Exit' item is clicked in the main menu
+    //
+    // @author Petru Barko
+    //
     void OnMenuQuit(wxCommandEvent& event);
 
 
-    /**
-    *Reads the data file in real time and outputs the result into the main window's text field
-    *
-    *@return void
-    */
+    //
+    // Reads the data file in real time and outputs the result into the main window's text field
+    //
+    // @author Petru Barko
+    //
     virtual wxThread::ExitCode Entry();
 
-
-    wxTextCtrl *myTextBox;
-
-    serpents::SWTaskBarIcon   *m_taskBarIcon;
-#if defined(__WXOSX__) && wxOSX_USE_COCOA
-    SWTaskBarIcon   *m_dockIcon;
-#endif
-
-    /**
-    *This macro links the event handlers with the event triggerers
-    *by giving each event handler an id that will be used in the construction of each event triggerer.
-    *Applied only for main window elements
-    *
-    */
+    //
+    // This macro links the event handlers with the event triggerers
+    // by giving each event handler an id that will be used in the construction of each event triggerer.
+    // Applied only for main window elements
+    //
     wxDECLARE_EVENT_TABLE();
   };
-
 }
 
 #endif  // SW_FRAME_H
