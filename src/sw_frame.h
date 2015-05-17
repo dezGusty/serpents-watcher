@@ -75,7 +75,7 @@ namespace serpents
     //
     // @author Petru Barko
     //
-    void DoStartALongTask();
+    void RunBackgroundThread();
 
     //
     // Closes the application when the user click the top right corner x button

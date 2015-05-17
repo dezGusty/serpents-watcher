@@ -168,6 +168,9 @@ namespace serpents
         this->impl_->app_config_.load(target_file);
         std::string service_name(this->impl_->app_config_["service"]["name"].getAsStringOrDefaultVal(""));
 
+        GTRACE(3, "Loading configuration from file: " << target_file);
+        GTRACE(3, "Service name to control is: " << service_name)
+
         break;
       }
     }
@@ -254,7 +257,7 @@ namespace serpents
 
     this->impl_->frame_ptr->Show(false);  //  hide the main wondow
 
-    this->impl_->frame_ptr->DoStartALongTask();  //  starts a background thread that reads the log file
+    this->impl_->frame_ptr->RunBackgroundThread();  //  starts a background thread that reads the log file
     return true;
   }
 }

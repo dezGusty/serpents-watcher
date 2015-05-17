@@ -34,6 +34,11 @@
 #include "sw_frame.h"
 
 //
+// C++ system headers
+//
+#include <string>
+
+//
 // 3rd party libraries.
 //
 #include "guslib/util/filehelper.h"
@@ -54,8 +59,8 @@
 
 namespace serpents
 {
-  enum{
-
+  enum
+  {
     Menu_Quit = wxID_ANY
   };
 
@@ -85,7 +90,6 @@ namespace serpents
     wxMenuBar *menuBar = new wxMenuBar();
     menuBar->Append(fileMenu, "&File");
 
-
     // ... and attach this menu bar to the frame
     SetMenuBar(menuBar);
 #endif // wxUSE_MENUS
@@ -100,12 +104,12 @@ namespace serpents
     wxSizerFlags flags;
     flags.Border(wxALL, 10);
 
-    sizerTop->Add(new wxStaticText
-      (
-      this,
-      wxID_ANY,
-      wxT("Loggs:")
-      ), flags);
+    sizerTop->Add(
+      new wxStaticText(
+        this,
+        wxID_ANY,
+        wxT("Loggs:")), 
+      flags);
 
     wxSizer * const sizerTextCtr = new wxBoxSizer(wxHORIZONTAL);
 
@@ -136,7 +140,10 @@ namespace serpents
       serpents::services::Status service_status = serpents::services::GetServiceStatus(service_name.c_str());
       if (service_status == serpents::services::Status::SvcStatusRunning)
       {
-        if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), wxBITMAP_TYPE_ICO)))
+        if (!m_taskBarIcon->SetIcon(
+          wxIcon(
+            this->icon_selector_.resource_root_path() + this->icon_selector_.running_icon_name(), 
+            wxBITMAP_TYPE_ICO)))
         {
           wxLogError(wxT("Could not set icon."));
         }
@@ -145,16 +152,25 @@ namespace serpents
       }
       else if (service_status == serpents::services::Status::SvcStatusStopped)
       {
-        if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO)))
+        if (!m_taskBarIcon->SetIcon(
+          wxIcon(
+            this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), 
+            wxBITMAP_TYPE_ICO)))
         {
           wxLogError(wxT("Could not set icon."));
         }
 
-        this->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), wxBITMAP_TYPE_ICO));
+        this->SetIcon(
+          wxIcon(
+            this->icon_selector_.resource_root_path() + this->icon_selector_.stopped_icon_name(), 
+            wxBITMAP_TYPE_ICO));
       }
       else
       {
-        if (!m_taskBarIcon->SetIcon(wxIcon(this->icon_selector_.resource_root_path() + this->icon_selector_.error_icon_name(), wxBITMAP_TYPE_ICO)))
+        if (!m_taskBarIcon->SetIcon(
+          wxIcon(
+            this->icon_selector_.resource_root_path() + this->icon_selector_.error_icon_name(), 
+            wxBITMAP_TYPE_ICO)))
         {
           wxLogError(wxT("Could not set icon."));
         }
@@ -204,8 +220,12 @@ namespace serpents
     Close(true);
   }
 
-
-  void SWFrame::DoStartALongTask()//called in main app
+  //
+  // Create a background thread, tasked with monitoring a log file.
+  //
+  // @authors Petru Barko, Augustin Preda.
+  //
+  void SWFrame::RunBackgroundThread()
   {
     // we want to start a long task, but we don't want our GUI to block
     // while it's executed, so we use a thread to do it.
@@ -221,6 +241,14 @@ namespace serpents
       return;
     }
   }
+
+  //
+  // The background thread to run.
+  // This handles the tracking of a file on the disk, opening it and reading its contents on a regular basis,
+  // and displaying these contents in the application's frame
+  //
+  // @authors Petru Barko, Augustin Preda.
+  //
   wxThread::ExitCode SWFrame::Entry() //the code for the thread that you want to be executed
   {
     // IMPORTANT:
@@ -228,48 +256,53 @@ namespace serpents
     // VERY IMPORTANT: do not call any GUI function inside this
     //                 function; rather use wxQueueEvent():
     guslib::config::Configuration config_;
-    std::string cfgFileName(this->icon_selector_.resource_root_path() + "settings.ini");
-    std::string loggFile = this->icon_selector_.resource_root_path();
-    if (guslib::filehelper::IsFileAccessible(cfgFileName))
-    {
-      config_.load(cfgFileName);
+    std::string logFile = this->icon_selector_.resource_root_path();
+    logFile.append(this->app_config_["loggfile"]["name"].getAsStringOrDefaultVal(""));
 
-      loggFile += config_["loggfile"]["name"].getAsStringOrDefaultVal("");
-    }
-    FILE* fl = fopen(loggFile.c_str(), "r");
+    FILE* fl = fopen(logFile.c_str(), "r");
     char line[255];
     // here we do our long task, periodically calling TestDestroy():
-    do{
+    do
+    {
       while (!GetThread()->TestDestroy())
       {
+        // TODO(Augustin Preda, 2015.05.15): shouldn't wxQueueEvent be used instead of AppendText?
+        // TODO(Augustin Preda, 2015.05.15): this should be moved to another function.
+        // The full file is read each and every time. Some caching would be in order.
+
         // since this Entry() is implemented in SWFrame context we don't
         // need any pointer to access the m_data, m_processedData, m_dataCS
         // variables... very nice!
-
-        if (fl != NULL){
+        if (fl != NULL)
+        {
           int i = 0;
-          while (fgets(line, 255, fl) != NULL){
-
+          while (fgets(line, 255, fl) != NULL)
+          {
             this->myTextBox->AppendText(line);
           }
+
           break;
         }
       }
 
-      ::wxMilliSleep(1750);// Sleep(1900);
+      ::wxMilliSleep(2000);
     } while (true);
+    
     // TestDestroy() returned true (which means the main thread asked us
     // to terminate as soon as possible) or we ended the long task...
     return (wxThread::ExitCode)0;
   }
 
+  //
+  // React to the frame close event.
+  //
+  // @authors Petru Barko, Augustin Preda.
+  //
   void SWFrame::OnClose(wxCloseEvent&)
   {
-    // important: before terminating, we _must_ wait for our joinable
-    // thread to end, if it's running; in fact it uses variables of this
-    // instance and posts events to *this event handler
-    if (GetThread() &&      // DoStartALongTask() may have not been called
-      GetThread()->IsRunning())
+    // Before closing, the application MUST wait for the joinable thread to end.
+    // Of course, this is valid only of the thread was created in the first place.
+    if (GetThread() && GetThread()->IsRunning())
     {
       GetThread()->Wait();
     }
