@@ -257,7 +257,11 @@ namespace serpents
 
     this->impl_->frame_ptr->Show(false);  //  hide the main wondow
 
-    this->impl_->frame_ptr->RunBackgroundThread();  //  starts a background thread that reads the log file
+    if (this->impl_->app_config_["logfile"]["enabled"].getAsBoolOrDefault(false))
+    {
+      this->impl_->frame_ptr->RunBackgroundThread();  //  starts a background thread that reads the log file
+    }
+
     return true;
   }
 }

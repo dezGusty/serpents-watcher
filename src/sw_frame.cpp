@@ -242,6 +242,21 @@ namespace serpents
     }
   }
 
+  void LoadTextIntoWidget(wxTextCtrl* widget, FILE* fl)
+  {
+    // TODO(Augustin Preda, 2015.06.09): Shouldn't this allow lengths greater than 255?
+    char line[255];
+
+    if (fl != NULL)
+    {
+      int i = 0;
+      while (fgets(line, 255, fl) != NULL)
+      {
+        widget->AppendText(line);
+      }
+    }
+  }
+
   //
   // The background thread to run.
   // This handles the tracking of a file on the disk, opening it and reading its contents on a regular basis,
@@ -260,7 +275,7 @@ namespace serpents
     logFile.append(this->app_config_["logfile"]["name"].getAsStringOrDefaultVal(""));
 
     FILE* fl = fopen(logFile.c_str(), "r");
-    char line[255];
+
     // here we do our long task, periodically calling TestDestroy():
     do
     {
@@ -273,21 +288,17 @@ namespace serpents
         // since this Entry() is implemented in SWFrame context we don't
         // need any pointer to access the m_data, m_processedData, m_dataCS
         // variables... very nice!
-        if (fl != NULL)
-        {
-          int i = 0;
-          while (fgets(line, 255, fl) != NULL)
-          {
-            this->myTextBox->AppendText(line);
-          }
 
-          break;
-        }
+        LoadTextIntoWidget(this->myTextBox, fl);
+        break;
+        
       }
 
       ::wxMilliSleep(2000);
     } while (true);
     
+    fclose(fl);
+
     // TestDestroy() returned true (which means the main thread asked us
     // to terminate as soon as possible) or we ended the long task...
     return (wxThread::ExitCode)0;
