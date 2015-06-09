@@ -64,7 +64,9 @@ namespace serpents
     Menu_Quit = wxID_ANY
   };
 
-
+  //
+  // Bind the UI elements to events.
+  //
   wxBEGIN_EVENT_TABLE(SWFrame, wxFrame)
     EVT_BUTTON(wxID_OK, SWFrame::OnOK)
     EVT_BUTTON(wxID_EXIT, SWFrame::OnExit)
@@ -73,12 +75,13 @@ namespace serpents
     EVT_CLOSE(SWFrame::OnClose)
     wxEND_EVENT_TABLE()
 
-
-
-    SWFrame::SWFrame(guslib::config::Configuration app_config, IconSelector icon_selector, const wxString& title)
-    : wxFrame(NULL, wxID_ANY, title),
-    app_config_(app_config),
-    icon_selector_(icon_selector)
+  //
+  // Frame constructor.
+  //
+  SWFrame::SWFrame(guslib::config::Configuration app_config, IconSelector icon_selector, const wxString& title)
+  : wxFrame(NULL, wxID_ANY, title),
+  app_config_(app_config),
+  icon_selector_(icon_selector)
   {
 #if wxUSE_MENUS
     // create a menu bar
@@ -108,11 +111,10 @@ namespace serpents
       new wxStaticText(
         this,
         wxID_ANY,
-        wxT("Loggs:")), 
+        wxT("Logs:")), 
       flags);
 
     wxSizer * const sizerTextCtr = new wxBoxSizer(wxHORIZONTAL);
-
 
     this->myTextBox->SetEditable(false);
 
@@ -129,8 +131,6 @@ namespace serpents
     sizerTop->Add(sizerBtns, flags.Align(wxALIGN_CENTER_HORIZONTAL));
     SetSizerAndFit(sizerTop);
     Centre();
-
-
 
     m_taskBarIcon = new serpents::SWTaskBarIcon(this->app_config_, this->icon_selector_, this);
 
@@ -257,7 +257,7 @@ namespace serpents
     //                 function; rather use wxQueueEvent():
     guslib::config::Configuration config_;
     std::string logFile = this->icon_selector_.resource_root_path();
-    logFile.append(this->app_config_["loggfile"]["name"].getAsStringOrDefaultVal(""));
+    logFile.append(this->app_config_["logfile"]["name"].getAsStringOrDefaultVal(""));
 
     FILE* fl = fopen(logFile.c_str(), "r");
     char line[255];
