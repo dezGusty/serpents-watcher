@@ -178,7 +178,7 @@ namespace serpents
     // Ok, what if no config file was found? Throw an exception.
     if (this->impl_->app_config_.getGroups().size() == 0)
     {
-      std::string errorMessage = ("Could not locate settings.ini file. Tried:");
+      std::string errorMessage("Could not locate settings.ini file. Tried:");
       for (std::vector <std::string>::iterator it = config_locations.begin();
         it != config_locations.end(); ++it)
       {

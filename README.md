@@ -4,8 +4,8 @@ Serpents Watcher is a small utility for Microsoft Windows operating systems used
 
 ## Author(s)
 ------------
-Petru Barko
-Augustin Preda
+- Petru Barko
+- Augustin Preda
 
 ## License
 ----------
